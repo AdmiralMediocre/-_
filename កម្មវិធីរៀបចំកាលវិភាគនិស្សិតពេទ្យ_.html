@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កម្មវិធីរៀបចំកាលវិភាគនិស្សិត</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang:wght@400;700&family=Khmer+OS+Muol+Light&display=swap');
+        body { font-family: 'Khmer OS Battambang', sans-serif; }
+        .group-card { transition: all 0.2s; }
+        .group-card:hover { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-6 text-sm">
+
+<div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-xl border-t-4 border-blue-600">
+    <h1 class="text-3xl font-bold text-center text-blue-800 mb-2">កម្មវិធីរៀបចំកាលវិភាគនិស្សិតពេទ្យ (ចុះកម្មសិក្សា)</h1>
+    
+    <div class="flex justify-center gap-6 mb-6">
+        <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold shadow-inner">
+            សិស្សដែលបានរកឃើញសរុប (Students Detected): <span id="statStudents" class="text-xl">0</span> នាក់
+        </div>
+        <div class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-bold shadow-inner">
+            ថ្ងៃឈប់សម្រាក (Holidays Detected): <span id="statHolidays" class="text-xl">0</span> ថ្ងៃ
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        
+        <div class="bg-gray-50 p-5 rounded-lg border">
+            <h2 class="font-bold text-lg text-gray-700 mb-4 border-b pb-2">១. កាលបរិច្ឆេទ និងទិន្នន័យ (Dates & Data)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block font-bold mb-1 text-gray-600">បញ្ចូលឯកសារ List Data (.csv, .xlsx)</label>
+                    <input type="file" id="fileInput" accept=".csv, .xlsx" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-gray-600">កាលបរិច្ឆេទចាប់ផ្តើមបង្វិល (Anchor Date)</label>
+                    <input type="date" id="anchorDate" class="border p-2 rounded w-full border-gray-300 focus:ring focus:ring-blue-200 outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-gray-600">ខែចាប់ផ្តើម (Start Month)</label>
+                    <input type="month" id="startMonth" class="border p-2 rounded w-full border-gray-300 focus:ring focus:ring-blue-200 outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-gray-600">ចំនួនខែដែលត្រូវបង្កើត (Num Months)</label>
+                    <input type="number" id="numMonths" value="1" min="1" class="border p-2 rounded w-full border-gray-300 outline-none">
+                </div>
+                <div class="flex items-end">
+                    <label class="flex items-center space-x-2 bg-white border p-2 rounded w-full cursor-pointer hover:bg-gray-50">
+                        <input type="checkbox" id="includeSunday" checked class="w-5 h-5 text-blue-600 rounded">
+                        <span class="font-bold text-gray-700">បញ្ចូលថ្ងៃអាទិត្យ (Include Sunday)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-5 rounded-lg border">
+            <h2 class="font-bold text-lg text-gray-700 mb-4 border-b pb-2">២. កែសម្រួលអត្ថបទក្នុង Excel (Edit Texts)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-500">ចំណងជើង (Title)</label>
+                    <input type="text" id="mainTitle" value="បញ្ជីឈ្មោះនិស្សិតថ្នាក់បរិញ្ញាបត្រវិទ្យាសាស្ត្រវេជ្ជសាស្ត្រ" class="border p-1.5 rounded w-full">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500">ថ្នាក់ (Class)</label>
+                    <input type="text" id="className" value="៦PI" class="border p-1.5 rounded w-full">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500">ជំនាន់ទី (Generation)</label>
+                    <input type="text" id="genNumber" value="៤៩" class="border p-1.5 rounded w-full">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500">ឆ្នាំសិក្សា (Academic Year)</label>
+                    <input type="text" id="academicYear" value="២០២៥-២០២៦" class="border p-1.5 rounded w-full">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500">ភេទស្រីសរុប (Total Female Info)</label>
+                    <input type="text" id="femaleCount" value="ស្រី ១៧នាក់" class="border p-1.5 rounded w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-500">Note 2:</label>
+                    <input type="text" id="note2" value="និស្សិតអាហារូបករណ៍ចំនួន ០៥នាក់ (ស្រី ០២នាក់)" class="border p-1.5 rounded w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-500">Note 3:</label>
+                    <input type="text" id="note3" value="និស្សិតចុះឈ្មោះចូលរៀន ២៧នាក់ (ស្រី ១៧នាក់)" class="border p-1.5 rounded w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-500">កាលបរិច្ឆេទហត្ថលេខា (Signature Text)</label>
+                    <textarea id="signatureText" rows="2" class="border p-1.5 rounded w-full">ថ្ងៃពុធ ៦កើត ខែមិគសិរ ឆ្នាំម្សាញ់ សប្តស័ក ព.ស. ២៥៦៩
+រាជធានីភ្នំពេញ ថ្ងៃទី២៦ ខែវិច្ឆិកា ឆ្នាំ២០២៥</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6 shadow-sm">
+        <h2 class="font-bold text-lg text-blue-800 mb-3">៣. ការកំណត់ក្រុមនិស្សិត (Group Configurations)</h2>
+        <div class="flex flex-wrap items-end gap-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">ចំនួនអ្នកក្នុងមួយថ្ងៃ (Person per Day)</label>
+                <input type="number" id="personsPerDay" value="2" min="1" class="border p-2 rounded w-32 border-gray-300">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">បើមានអ្នកសល់ (If leftover students)</label>
+                <select id="leftoverOption" class="border p-2 rounded border-gray-300 bg-white">
+                    <option value="new_group">បង្កើតក្រុមថ្មី (Form new group)</option>
+                    <option value="join_last">ចូលក្រុមចុងក្រោយ (Join with last group)</option>
+                </select>
+            </div>
+            <button onclick="autoGroup(false)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow transition">
+                រៀបចំក្រុម (Auto Group)
+            </button>
+            <button onclick="autoGroup(true)" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded shadow transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>
+                Randomize Groups
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+        
+        <div class="border rounded-lg flex flex-col h-[600px] bg-white shadow-sm">
+            <div class="bg-gray-700 text-white p-3 flex justify-between items-center rounded-t-lg">
+                <h2 class="font-bold">បញ្ជីឈ្មោះ (List of Names)</h2>
+                <button onclick="addUnassignedStudent()" class="bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-xs border border-gray-500">+ បន្ថែម</button>
+            </div>
+            <div class="p-2 bg-gray-50 border-b flex justify-between">
+                <button onclick="groupSelectedStudents()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-bold w-full shadow-sm">
+                    + បង្កើតក្រុមពីអ្នកដែលបានរើស (Group Selected)
+                </button>
+            </div>
+            <div class="overflow-y-auto flex-1 p-2 bg-white" id="unassignedList">
+                </div>
+        </div>
+
+        <div class="border rounded-lg flex flex-col h-[600px] bg-white shadow-sm">
+            <div class="bg-blue-600 text-white p-3 flex justify-between items-center rounded-t-lg">
+                <h2 class="font-bold">បញ្ជីក្រុម (List of Groups)</h2>
+                <span class="text-xs bg-blue-800 px-2 py-1 rounded" id="groupCountBadge">0 ក្រុម</span>
+            </div>
+            <div class="overflow-y-auto flex-1 p-3 bg-gray-50" id="groupsList">
+                </div>
+        </div>
+
+        <div class="border rounded-lg flex flex-col h-[600px] bg-white shadow-sm">
+            <div class="bg-yellow-500 text-white p-3 flex justify-between items-center rounded-t-lg">
+                <h2 class="font-bold text-yellow-900">ថ្ងៃឈប់សម្រាក (Holidays)</h2>
+                <button onclick="addHoliday()" class="bg-yellow-400 hover:bg-yellow-300 px-2 py-1 rounded text-xs text-yellow-900 font-bold shadow-sm">+ បន្ថែម</button>
+            </div>
+            <div class="overflow-y-auto flex-1 p-0 bg-white">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-yellow-50 sticky top-0 border-b">
+                            <th class="p-2 border-r text-gray-700">កាលបរិច្ឆេទ</th>
+                            <th class="p-2 w-16 text-center text-gray-700">លុប</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holidayTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button onclick="generateExcelFiles()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-12 rounded-lg shadow-xl transition duration-200 text-xl w-full md:w-auto uppercase tracking-wide border-b-4 border-green-800 hover:border-green-600 active:mt-1 active:border-b-0">
+            បង្កើតឯកសារ Excel (Generate Excel)
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // System State
+    let unassignedStudents = [];
+    let groups = []; // Array of Arrays: [ ["Name1", "Name2"], ["Name3"] ]
+    let holidays = [];
+    let draggedGroupIndex = null; // Used for drag and drop functionality
+
+    // Utility: Convert standard numbers to Khmer numbers
+    function toKhmerNum(num) {
+        const khmer = ['០','១','២','៣','៤','៥','៦','៧','៨','៩'];
+        return num.toString().split('').map(c => khmer[c] || c).join('');
+    }
+
+    // CSV/String Date Formatter
+    function formatDateString(dStr) {
+        if(!dStr) return '';
+        if(dStr.includes('/')) {
+            const parts = dStr.split('/');
+            if(parts[2] && parts[2].length === 4) {
+                return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+            }
+        }
+        return dStr.trim();
+    }
+
+    // Get strictly all students across unassigned and groups
+    function getAllStudentsCount() {
+        let count = unassignedStudents.length;
+        groups.forEach(g => count += g.length);
+        return count;
+    }
+
+    function updateStats() {
+        document.getElementById('statStudents').innerText = getAllStudentsCount();
+        document.getElementById('statHolidays').innerText = holidays.length;
+        document.getElementById('groupCountBadge').innerText = `${groups.length} ក្រុម`;
+    }
+
+    // Read CSV or XLSX
+    document.getElementById('fileInput').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const fileName = file.name.toLowerCase();
+
+        // Reset State
+        unassignedStudents = [];
+        groups = [];
+        holidays = [];
+
+        if (fileName.endsWith('.csv')) {
+            // Logic for CSV
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    results.data.forEach(row => {
+                        const studentName = row['Student name'] || row['student name'] || row['Student Name'];
+                        const holidayDate = row['Holidays'] || row['holidays'] || row['Holiday'];
+
+                        if (studentName && studentName.trim() !== '') {
+                            unassignedStudents.push(studentName.trim());
+                        }
+                        if (holidayDate && holidayDate.trim() !== '') {
+                            holidays.push(formatDateString(holidayDate));
+                        }
+                    });
+                    renderAll();
+                }
+            });
+        } else if (fileName.endsWith('.xlsx')) {
+            // Logic for XLSX
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const buffer = event.target.result;
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(buffer);
+                
+                const worksheet = workbook.worksheets[0]; // first sheet
+                if (!worksheet) {
+                    alert('គ្មានផ្ទាំងការងារ (worksheet) ក្នុងឯកសារ Excel នេះទេ!');
+                    return;
+                }
+
+                let studentCol = -1;
+                let holidayCol = -1;
+
+                // Find the column mapping based on the first row
+                const headerRow = worksheet.getRow(1);
+                headerRow.eachCell((cell, colNumber) => {
+                    const header = cell.value ? cell.value.toString().trim().toLowerCase() : '';
+                    if (header === 'student name') studentCol = colNumber;
+                    if (header === 'holidays' || header === 'holiday') holidayCol = colNumber;
+                });
+
+                // Read through rows
+                worksheet.eachRow((row, rowNumber) => {
+                    if (rowNumber === 1) return; // Skip header
+
+                    if (studentCol !== -1) {
+                        let studentCell = row.getCell(studentCol).value;
+                        if (studentCell) {
+                            // Support RichText strings if formatted
+                            let studentName = typeof studentCell === 'object' && studentCell.richText 
+                                ? studentCell.richText.map(rt => rt.text).join('') 
+                                : studentCell.toString();
+                            
+                            if (studentName.trim() !== '') {
+                                unassignedStudents.push(studentName.trim());
+                            }
+                        }
+                    }
+
+                    if (holidayCol !== -1) {
+                        let holidayCell = row.getCell(holidayCol).value;
+                        if (holidayCell) {
+                            let holidayDate = '';
+                            if (holidayCell instanceof Date) {
+                                // Extract date accurately ignoring timezone shifts
+                                const tzOffset = holidayCell.getTimezoneOffset() * 60000;
+                                holidayDate = (new Date(holidayCell - tzOffset)).toISOString().split('T')[0];
+                            } else {
+                                let holidayStr = typeof holidayCell === 'object' && holidayCell.richText 
+                                    ? holidayCell.richText.map(rt => rt.text).join('') 
+                                    : holidayCell.toString();
+                                holidayDate = formatDateString(holidayStr);
+                            }
+                            if (holidayDate) {
+                                holidays.push(holidayDate);
+                            }
+                        }
+                    }
+                });
+                renderAll();
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            alert('សូមបញ្ចូលឯកសារ .csv ឬ .xlsx (Please upload .csv or .xlsx)');
+        }
+    });
+
+    // --- Core Rendering Logic ---
+    function renderAll() {
+        renderUnassigned();
+        renderGroups();
+        renderHolidays();
+        updateStats();
+    }
+
+    function renderUnassigned() {
+        const container = document.getElementById('unassignedList');
+        container.innerHTML = '';
+        if(unassignedStudents.length === 0) {
+            container.innerHTML = `<p class="text-gray-400 text-center mt-4 text-xs italic">គ្មានឈ្មោះទំនេរ</p>`;
+            return;
+        }
+
+        unassignedStudents.forEach((name, index) => {
+            const div = document.createElement('div');
+            div.className = "flex items-center gap-2 p-2 border-b hover:bg-gray-100 transition";
+            div.innerHTML = `
+                <input type="checkbox" class="student-cb w-4 h-4 text-blue-600 rounded cursor-pointer" data-index="${index}">
+                <span class="text-gray-500 text-xs w-5">${index + 1}.</span>
+                <input type="text" class="flex-1 outline-none bg-transparent text-sm font-medium text-gray-800" value="${name}" onchange="updateUnassignedName(${index}, this.value)">
+                <button onclick="removeUnassigned(${index})" class="text-red-400 hover:text-red-600 p-1 font-bold" title="Delete">✕</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function renderGroups() {
+        const container = document.getElementById('groupsList');
+        container.innerHTML = '';
+        
+        if(groups.length === 0) {
+            container.innerHTML = `<div class="h-full flex items-center justify-center text-gray-400 italic text-sm">សូមបង្កើតក្រុម</div>`;
+            return;
+        }
+
+        groups.forEach((group, gIndex) => {
+            const groupCard = document.createElement('div');
+            groupCard.className = "group-card bg-white border border-gray-200 rounded-lg mb-3 shadow-sm overflow-hidden";
+            groupCard.setAttribute('draggable', 'true');
+            
+            // --- Drag and Drop Event Listeners ---
+            groupCard.addEventListener('dragstart', (e) => {
+                draggedGroupIndex = gIndex;
+                setTimeout(() => groupCard.classList.add('opacity-40'), 0);
+            });
+            groupCard.addEventListener('dragover', (e) => {
+                e.preventDefault(); // Necessary to allow dropping
+                groupCard.classList.add('border-blue-500', 'border-dashed', 'border-2');
+            });
+            groupCard.addEventListener('dragleave', (e) => {
+                groupCard.classList.remove('border-blue-500', 'border-dashed', 'border-2');
+            });
+            groupCard.addEventListener('drop', (e) => {
+                e.preventDefault();
+                groupCard.classList.remove('border-blue-500', 'border-dashed', 'border-2');
+                
+                if (draggedGroupIndex === null || draggedGroupIndex === gIndex) return;
+                
+                // Move the group array element
+                const movedGroup = groups.splice(draggedGroupIndex, 1)[0];
+                groups.splice(gIndex, 0, movedGroup);
+                
+                draggedGroupIndex = null;
+                renderAll();
+            });
+            groupCard.addEventListener('dragend', (e) => {
+                groupCard.classList.remove('opacity-40');
+                draggedGroupIndex = null;
+                renderAll(); // Cleanup visual states if dropped outside
+            });
+
+            // --- Card Header HTML (with Drag Handle and Up/Down Arrows) ---
+            let headerHTML = `
+                <div class="bg-blue-100 border-b border-blue-200 px-2 py-2 flex justify-between items-center cursor-move" title="Drag to reorder (អូសដើម្បីផ្លាស់ប្តូរទីតាំង)">
+                    <div class="flex items-center gap-1">
+                        <span class="text-blue-400 text-lg cursor-move select-none" aria-hidden="true">⠿</span>
+                        <span class="font-bold text-blue-800 text-sm ml-1">ក្រុម ${gIndex + 1} <span class="text-xs font-normal text-blue-600 ml-1">(${group.length} នាក់)</span></span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="moveGroupUp(${gIndex})" title="Move Up" class="text-gray-500 hover:text-blue-600 hover:bg-blue-200 px-1.5 py-0.5 rounded text-xs transition">▲</button>
+                        <button onclick="moveGroupDown(${gIndex})" title="Move Down" class="text-gray-500 hover:text-blue-600 hover:bg-blue-200 px-1.5 py-0.5 rounded text-xs transition">▼</button>
+                        <button onclick="deleteGroup(${gIndex})" title="Delete Group" class="text-red-500 hover:text-red-700 hover:bg-red-100 px-1.5 py-0.5 rounded text-xs font-bold transition ml-1">✕</button>
+                    </div>
+                </div>
+                <div class="p-2 space-y-1">
+            `;
+
+            // Students in Group
+            group.forEach((student, sIndex) => {
+                headerHTML += `
+                    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded border border-gray-100">
+                        <span class="text-gray-400 text-xs ml-1">•</span>
+                        <input type="text" class="flex-1 outline-none bg-transparent text-sm text-gray-700" value="${student}" onchange="updateGroupStudent(${gIndex}, ${sIndex}, this.value)">
+                        <button onclick="removeStudentFromGroup(${gIndex}, ${sIndex})" class="text-gray-400 hover:text-red-500 px-1" title="Remove from group">✕</button>
+                    </div>
+                `;
+            });
+            
+            headerHTML += `</div>`;
+            groupCard.innerHTML = headerHTML;
+            container.appendChild(groupCard);
+        });
+    }
+
+    function renderHolidays() {
+        const tbody = document.getElementById('holidayTableBody');
+        tbody.innerHTML = '';
+        holidays.forEach((date, index) => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-yellow-50";
+            tr.innerHTML = `
+                <td class="p-1 border-r border-b"><input type="date" class="w-full p-1 outline-none bg-transparent text-gray-700" value="${date}" onchange="updateHoliday(${index}, this.value)"></td>
+                <td class="p-1 border-b text-center"><button onclick="removeHoliday(${index})" class="text-red-500 font-bold hover:text-red-700">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- State Mutations ---
+    
+    // Unassigned Actions
+    function addUnassignedStudent() { unassignedStudents.unshift("ឈ្មោះថ្មី (New)"); renderAll(); }
+    function removeUnassigned(index) { unassignedStudents.splice(index, 1); renderAll(); }
+    function updateUnassignedName(index, val) { unassignedStudents[index] = val; }
+
+    // Holiday Actions
+    function addHoliday() { holidays.unshift(""); renderAll(); }
+    function removeHoliday(index) { holidays.splice(index, 1); renderAll(); }
+    function updateHoliday(index, val) { holidays[index] = val; }
+
+    // Group Reordering Actions (Up/Down arrows)
+    function moveGroupUp(index) {
+        if (index > 0) {
+            const temp = groups[index];
+            groups[index] = groups[index - 1];
+            groups[index - 1] = temp;
+            renderAll();
+        }
+    }
+
+    function moveGroupDown(index) {
+        if (index < groups.length - 1) {
+            const temp = groups[index];
+            groups[index] = groups[index + 1];
+            groups[index + 1] = temp;
+            renderAll();
+        }
+    }
+
+    // Grouping Logic
+    function groupSelectedStudents() {
+        let checkboxes = document.querySelectorAll('.student-cb:checked');
+        if(checkboxes.length === 0) {
+            alert('សូមជ្រើសរើសឈ្មោះយ៉ាងហោចណាស់ម្នាក់ដើម្បីបង្កើតក្រុម! (Select at least 1 person)');
+            return;
+        }
+
+        let newGroup = [];
+        // Extract indices and sort descending to safely splice from array without shifting problems
+        let indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.index)).sort((a,b) => b-a);
+        
+        for(let idx of indices) {
+            newGroup.push(unassignedStudents[idx]);
+            unassignedStudents.splice(idx, 1);
+        }
+        
+        groups.push(newGroup.reverse()); // Reverse to maintain selected top-to-bottom visual order
+        renderAll();
+    }
+
+    function autoGroup(isRandom) {
+        // Pool all students together (Unassigned + Groups)
+        let pool = [...unassignedStudents];
+        groups.forEach(g => pool.push(...g));
+        
+        if (pool.length === 0) {
+            alert('គ្មានទិន្នន័យសិស្សទេ! (No students available)');
+            return;
+        }
+
+        if (isRandom) {
+            // Fisher-Yates Shuffle
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+        }
+
+        let size = parseInt(document.getElementById('personsPerDay').value);
+        let leftoverOpt = document.getElementById('leftoverOption').value;
+
+        groups = [];
+        unassignedStudents = []; // All assigned
+
+        while(pool.length > 0) {
+            if(pool.length >= size) {
+                groups.push(pool.splice(0, size));
+            } else {
+                // Handle Leftovers
+                if(leftoverOpt === 'join_last' && groups.length > 0) {
+                    groups[groups.length - 1].push(...pool);
+                } else {
+                    groups.push([...pool]);
+                }
+                pool = [];
+            }
+        }
+        renderAll();
+    }
+
+    function deleteGroup(gIndex) {
+        // Move members back to unassigned
+        unassignedStudents.push(...groups[gIndex]);
+        groups.splice(gIndex, 1);
+        renderAll();
+    }
+
+    function removeStudentFromGroup(gIndex, sIndex) {
+        // Move single student back to unassigned
+        const student = groups[gIndex].splice(sIndex, 1)[0];
+        unassignedStudents.push(student);
+        // If group is empty, delete it
+        if(groups[gIndex].length === 0) {
+            groups.splice(gIndex, 1);
+        }
+        renderAll();
+    }
+
+    function updateGroupStudent(gIndex, sIndex, val) {
+        groups[gIndex][sIndex] = val;
+    }
+
+
+    // --- Excel Generation Core ---
+    async function generateExcelFiles() {
+        if (groups.length === 0) {
+            alert('សូមរៀបចំក្រុមយ៉ាងហោចណាស់១ជាមុនសិន! (Please create at least 1 group)');
+            return;
+        }
+
+        const anchorDateStr = document.getElementById('anchorDate').value;
+        const startMonthStr = document.getElementById('startMonth').value;
+        const numMonths = parseInt(document.getElementById('numMonths').value);
+
+        if (!anchorDateStr || !startMonthStr || isNaN(numMonths)) {
+            alert('សូមបំពេញកាលបរិច្ឆេទចាប់ផ្តើមបង្វិល (Anchor Date) និងខែចាប់ផ្តើមអោយបានត្រឹមត្រូវ!');
+            return;
+        }
+
+        const anchorDate = new Date(anchorDateStr);
+        let [startYear, startMonth] = startMonthStr.split('-');
+        startYear = parseInt(startYear);
+        startMonth = parseInt(startMonth) - 1;
+
+        const holidaysSet = new Set(holidays);
+        const includeSunday = document.getElementById('includeSunday').checked;
+
+        let assignmentMap = new Map(); 
+        let validDaysCount = 0;
+        let maxDate = new Date(startYear, startMonth + numMonths, 0); 
+        
+        let currentDateIter = new Date(anchorDate);
+        while (currentDateIter <= maxDate) {
+            const dateStr = currentDateIter.toISOString().split('T')[0];
+            const dayOfWeek = currentDateIter.getDay(); 
+            
+            // Core Logic Change: Check includeSunday flag
+            const isValidDay = includeSunday ? true : (dayOfWeek !== 0);
+
+            if (isValidDay && !holidaysSet.has(dateStr)) {
+                let assignedGroup = groups[validDaysCount % groups.length];
+                assignmentMap.set(dateStr, assignedGroup);
+                validDaysCount++;
+            }
+            currentDateIter.setDate(currentDateIter.getDate() + 1);
+        }
+
+        for (let m = 0; m < numMonths; m++) {
+            let targetMonth = startMonth + m;
+            let targetYear = startYear;
+            if (targetMonth > 11) {
+                targetMonth -= 12;
+                targetYear++;
+            }
+            await generateSingleMonthExcel(targetYear, targetMonth, assignmentMap, holidaysSet);
+        }
+    }
+
+    async function generateSingleMonthExcel(year, month, assignmentMap, holidaysSet) {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('កាលវិភាគ', {
+            pageSetup: {
+                paperSize: 9, 
+                orientation: 'landscape',
+                fitToPage: true,
+                fitToWidth: 1,
+                fitToHeight: 1, 
+                margins: { left: 0.2, right: 0.2, top: 0.3, bottom: 0.3, header: 0, footer: 0 }
+            }
+        });
+
+        // Set wide columns dynamically to fit multiple names
+        sheet.columns = [
+            { width: 22 }, { width: 22 }, { width: 22 }, { width: 22 },
+            { width: 22 }, { width: 22 }, { width: 22 }
+        ];
+
+        // --- Custom Header Variables ---
+        let mainTitle = document.getElementById('mainTitle').value;
+        let className = document.getElementById('className').value;
+        let genNumber = document.getElementById('genNumber').value;
+        let academicYear = document.getElementById('academicYear').value;
+        let fullSubtitle = `ឆ្នាំទី ${className} ជំនាន់ទី${genNumber} , សម្រាប់ឆ្នាំសិក្សា ${academicYear}`;
+
+        // --- Headers Rendering ---
+        sheet.mergeCells('A1:G1');
+        sheet.getCell('A1').value = 'សាកលវិទ្យាល័យវិទ្យាសាស្រ្តសុខាភិបាល';
+        sheet.getCell('A1').font = { name: 'Khmer OS Muol Light', size: 16, bold: true };
+        sheet.getCell('A1').alignment = { horizontal: 'center' };
+
+        sheet.mergeCells('A2:G2');
+        sheet.getCell('A2').value = 'មហាវិទ្យាល័យវេជ្ជសាស្រ្ត';
+        sheet.getCell('A2').font = { name: 'Khmer OS Muol Light', size: 14, bold: true };
+        sheet.getCell('A2').alignment = { horizontal: 'center' };
+
+        sheet.mergeCells('A3:G3');
+        sheet.getCell('A3').value = mainTitle;
+        sheet.getCell('A3').font = { name: 'Khmer OS Muol Light', size: 12, bold: true };
+        sheet.getCell('A3').alignment = { horizontal: 'center' };
+
+        sheet.mergeCells('A4:G4');
+        sheet.getCell('A4').value = fullSubtitle;
+        sheet.getCell('A4').font = { name: 'Khmer OS Battambang', size: 12, bold: true };
+        sheet.getCell('A4').alignment = { horizontal: 'center' };
+
+        sheet.addRow([]); 
+
+        // --- Days of the week ---
+        const daysOfWeek = ['ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍', 'អាទិត្យ'];
+        const headerRow = sheet.addRow(daysOfWeek);
+        headerRow.height = 25;
+        headerRow.eachCell((cell) => {
+            cell.font = { name: 'Khmer OS Muol Light', size: 12, bold: true };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEEEEEE' } };
+            cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+        });
+
+        // --- Calendar Body ---
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        
+        let colIndex = firstDay.getDay() === 0 ? 7 : firstDay.getDay(); 
+
+        let currentRow = sheet.addRow([]);
+        currentRow.height = 150; // Keep height large enough for multiple names
+
+        for(let i=1; i<colIndex; i++) {
+            let cell = currentRow.getCell(i);
+            cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+        }
+
+        const includeSunday = document.getElementById('includeSunday').checked;
+
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const isSunday = (colIndex === 7);
+            const isHoliday = holidaysSet.has(dateStr);
+
+            let cellText = `${d}\n`; 
+            if (isHoliday) {
+                cellText += `\nថ្ងៃឈប់សម្រាក`;
+            } else {
+                // Only write names if it's NOT sunday OR includeSunday is checked
+                if (!isSunday || includeSunday) {
+                    let assignedGroup = assignmentMap.get(dateStr);
+                    if (assignedGroup) {
+                        cellText += '\n' + assignedGroup.join('\n');
+                    }
+                }
+            }
+
+            let cell = currentRow.getCell(colIndex);
+            cell.value = cellText;
+            
+            cell.font = { name: 'Khmer OS Battambang', size: 10 };
+            cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
+            cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+
+            if (isSunday) {
+                cell.font = { name: 'Khmer OS Battambang', size: 10, color: { argb: 'FFFF0000' } };
+            } else if (isHoliday) {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } };
+            }
+
+            colIndex++;
+            if (colIndex > 7 && d < lastDay.getDate()) {
+                currentRow = sheet.addRow([]);
+                currentRow.height = 150; 
+                colIndex = 1;
+            }
+        }
+
+        if (colIndex <= 7 && colIndex > 1) {
+            for(let i=colIndex; i<=7; i++) {
+                let cell = currentRow.getCell(i);
+                cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            }
+        }
+
+        sheet.addRow([]);
+
+        // --- Custom Footers ---
+        const totalStudents = getAllStudentsCount();
+        const khmerTotal = toKhmerNum(totalStudents);
+        const femaleCountText = document.getElementById('femaleCount').value;
+        const customNote2 = document.getElementById('note2').value;
+        const customNote3 = document.getElementById('note3').value;
+
+        const notes = [
+            'សម្គាល់៖',
+            `1. និស្សិតសរុបចំនួន ${khmerTotal}នាក់ (${femaleCountText})`,
+            `2. ${customNote2}`,
+            `3. ${customNote3}`
+        ];
+
+        let footerRow1 = sheet.addRow([notes[0]]);
+        footerRow1.getCell(1).font = { name: 'Khmer OS Battambang', size: 11, bold: true };
+        
+        sheet.addRow([notes[1]]).getCell(1).font = { name: 'Khmer OS Battambang', size: 11 };
+        sheet.addRow([notes[2]]).getCell(1).font = { name: 'Khmer OS Battambang', size: 11 };
+        sheet.addRow([notes[3]]).getCell(1).font = { name: 'Khmer OS Battambang', size: 11 };
+
+        sheet.addRow([]);
+        
+        // --- Signature ---
+        let signatureText = document.getElementById('signatureText').value;
+        
+        let sigRow = sheet.addRow(['', '', '', '', signatureText]);
+        sheet.mergeCells(`E${sigRow.number}:G${sigRow.number}`);
+        sigRow.getCell(5).font = { name: 'Khmer OS Battambang', size: 12 };
+        sigRow.getCell(5).alignment = { horizontal: 'center', wrapText: true };
+
+        // --- Export ---
+        const buffer = await workbook.xlsx.writeBuffer();
+        const monthNames = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
+        saveAs(new Blob([buffer]), `កាលវិភាគ_${monthNames[month]}_${year}.xlsx`);
+    }
+
+    // Initialize display on load
+    updateStats();
+</script>
+</body>
+</html>
