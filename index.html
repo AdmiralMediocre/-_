@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - Medical Student Schedule Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang:wght@400;700&display=swap');
+        .khmer-font { font-family: 'Khmer OS Battambang', sans-serif; }
+        .lang-active { background-color: #2563eb; color: white; border-color: #2563eb; }
+        .lang-inactive { background-color: white; color: #4b5563; border-color: #d1d5db; }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 leading-relaxed">
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="font-bold text-xl text-blue-700 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <span id="nav-title-en">Schedule Generator</span>
+                <span id="nav-title-km" class="khmer-font hidden">កម្មវិធីរៀបចំកាលវិភាគ</span>
+            </div>
+            <div class="flex rounded-md shadow-sm" role="group">
+                <button type="button" onclick="setLanguage('en')" id="btn-en" class="px-4 py-2 text-sm font-medium rounded-l-lg border lang-active transition">
+                    English
+                </button>
+                <button type="button" onclick="setLanguage('km')" id="btn-km" class="px-4 py-2 text-sm font-medium rounded-r-lg border-t border-b border-r lang-inactive khmer-font transition">
+                    ភាសាខ្មែរ
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto px-4 py-10">
+        
+        <div class="text-center mb-12">
+            <h1 id="hero-title-en" class="text-4xl font-extrabold text-slate-900 mb-4">How to Use the Schedule Generator</h1>
+            <h1 id="hero-title-km" class="text-4xl font-extrabold text-slate-900 mb-4 khmer-font hidden">របៀបប្រើប្រាស់កម្មវិធីរៀបចំកាលវិភាគ</h1>
+            
+            <p id="hero-desc-en" class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">This guide will show you how to format your student list and use the application to automatically generate Excel rotation schedules.</p>
+            <p id="hero-desc-km" class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto khmer-font hidden">សេចក្តីណែនាំនេះនឹងបង្ហាញអ្នកពីរបៀបរៀបចំបញ្ជីឈ្មោះ និងប្រើប្រាស់កម្មវិធីដើម្បីបង្កើតកាលវិភាគ Excel ដោយស្វ័យប្រវត្តិ។</p>
+            
+            <a href="app.html" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                <span id="btn-launch-en">Launch Application</span>
+                <span id="btn-launch-km" class="khmer-font hidden">បើកដំណើរការកម្មវិធី</span>
+            </a>
+        </div>
+
+        <div id="content-en" class="space-y-12">
+            
+            <section class="bg-white rounded-xl shadow-sm border p-6 md:p-8">
+                <div class="flex items-center gap-4 mb-6 border-b pb-4">
+                    <div class="bg-blue-100 text-blue-700 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">1</div>
+                    <h2 class="text-2xl font-bold text-slate-800">How to Prepare Your Data File</h2>
+                </div>
+                
+                <p class="mb-4">Before using the app, you need to prepare your Excel (`.xlsx`) or `.csv` file. The application looks for two specific column headers to extract your data:</p>
+                <ul class="list-disc list-inside mb-6 space-y-2 text-slate-700">
+                    <li>Create a column named exactly <strong>Student name</strong>. Put all student names under this column.</li>
+                    <li>Create a column named exactly <strong>Holidays</strong>. Put all holiday dates under this column (formats like <code>YYYY-MM-DD</code> or <code>DD/MM/YYYY</code> are supported).</li>
+                    <li><em>Note: The names and holidays do not need to match on the same row. The app reads them as two separate lists.</em></li>
+                </ul>
+
+                <div class="bg-slate-50 border rounded-lg p-4">
+                    <h3 class="font-semibold text-sm text-slate-500 mb-2 uppercase tracking-wide">Example Format (Based on your List Data file):</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left bg-white border border-slate-200">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="p-3 border-b border-r border-slate-200 font-bold">Student name</th>
+                                    <th class="p-3 border-b border-slate-200 font-bold">Holidays</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="p-2 border-b border-r border-slate-100">ឌី​ បញ្ញាវតី</td><td class="p-2 border-b border-slate-100 font-mono text-sm">2026-01-01</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100">សុង ម៉េងគីម</td><td class="p-2 border-b border-slate-100 font-mono text-sm">2026-07-01</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100">ភាវ ដួងសុមេធា</td><td class="p-2 border-b border-slate-100 font-mono text-sm">14/04/2026</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100">ខេន សុដាលីស</td><td class="p-2 border-b border-slate-100 text-slate-400 italic">... (more dates)</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100 text-slate-400 italic">... (more names)</td><td class="p-2 border-b border-slate-100"></td></tr>
+                                <tr><td class="p-2 border-r border-slate-100">រិទ្ធ ឌីម៉ង់</td><td class="p-2"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-sm border p-6 md:p-8">
+                <div class="flex items-center gap-4 mb-6 border-b pb-4">
+                    <div class="bg-blue-100 text-blue-700 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">2</div>
+                    <h2 class="text-2xl font-bold text-slate-800">How to Use the Application</h2>
+                </div>
+
+                <div class="space-y-6 text-slate-700">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">A. Upload Data & Set Dates</h3>
+                        <p>Upload your prepared file in Section 1. Set the <strong>Anchor Date</strong> (the date the rotation logic begins) and the <strong>Start Month</strong> for your generated Excel file. Choose how many months you want to generate and whether to include Sundays.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">B. Update Headers and Footers</h3>
+                        <p>In Section 2, modify the Title, Class Name, Generation, Academic Year, and Signatures. This text will be printed exactly as typed onto the final Excel output.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">C. Configure and Form Groups</h3>
+                        <p>In Section 3, specify how many <strong>Persons per Day</strong> you need. Choose what happens to leftover students (form a new group or join the last one). Finally, click <strong>Auto Group</strong> to assign sequentially, or <strong>Randomize Groups</strong> to shuffle them.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">D. Manual Adjustments</h3>
+                        <p>After auto-grouping, you can fine-tune the schedule. In the "List of Groups" panel, you can drag and drop groups to change their order, or click the Up/Down arrows. You can also manually move students or add missing holidays.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">E. Generate Excel</h3>
+                        <p>Once everything looks good, click the large green <strong>Generate Excel</strong> button at the bottom of the page to download your `.xlsx` schedule file(s).</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="content-km" class="space-y-12 hidden khmer-font">
+            
+            <section class="bg-white rounded-xl shadow-sm border p-6 md:p-8">
+                <div class="flex items-center gap-4 mb-6 border-b pb-4">
+                    <div class="bg-blue-100 text-blue-700 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">១</div>
+                    <h2 class="text-2xl font-bold text-slate-800">របៀបរៀបចំឯកសារទិន្នន័យរបស់អ្នក</h2>
+                </div>
+                
+                <p class="mb-4">មុនពេលប្រើប្រាស់កម្មវិធី អ្នកត្រូវរៀបចំឯកសារ Excel (`.xlsx`) ឬ `.csv` របស់អ្នកជាមុនសិន។ កម្មវិធីទាមទារក្បាលជួរឈរ (Columns) ចំនួន២ជាក់លាក់ដើម្បីទាញយកទិន្នន័យ៖</p>
+                <ul class="list-disc list-inside mb-6 space-y-2 text-slate-700">
+                    <li>បង្កើតជួរឈរមួយដែលមានឈ្មោះថា <strong>Student name</strong> រួចបញ្ចូលឈ្មោះសិស្សទាំងអស់នៅពីក្រោម។</li>
+                    <li>បង្កើតជួរឈរមួយទៀតដែលមានឈ្មោះថា <strong>Holidays</strong> រួចបញ្ចូលកាលបរិច្ឆេទឈប់សម្រាក (គាំទ្រទម្រង់ <code>YYYY-MM-DD</code> ឬ <code>DD/MM/YYYY</code>)។</li>
+                    <li><em>ចំណាំ៖ ឈ្មោះ និងថ្ងៃឈប់សម្រាកមិនចាំបាច់ស្ថិតនៅលើជួរដេក (Row) តែមួយនោះទេ កម្មវិធីនឹងអានវាជាបញ្ជីពីរដាច់ដោយឡែកពីគ្នា។</em></li>
+                </ul>
+
+                <div class="bg-slate-50 border rounded-lg p-4">
+                    <h3 class="font-semibold text-sm text-slate-500 mb-2 uppercase tracking-wide">ទម្រង់ឧទាហរណ៍ (យោងតាមឯកសារ List Data របស់អ្នក)៖</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left bg-white border border-slate-200">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="p-3 border-b border-r border-slate-200 font-bold">Student name</th>
+                                    <th class="p-3 border-b border-slate-200 font-bold">Holidays</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="p-2 border-b border-r border-slate-100">ឌី​ បញ្ញាវតី</td><td class="p-2 border-b border-slate-100 font-mono text-sm">2026-01-01</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100">សុង ម៉េងគីម</td><td class="p-2 border-b border-slate-100 font-mono text-sm">2026-07-01</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100">ភាវ ដួងសុមេធា</td><td class="p-2 border-b border-slate-100 font-mono text-sm">14/04/2026</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100">ខេន សុដាលីស</td><td class="p-2 border-b border-slate-100 text-slate-400 italic">... (ថ្ងៃផ្សេងទៀត)</td></tr>
+                                <tr><td class="p-2 border-b border-r border-slate-100 text-slate-400 italic">... (ឈ្មោះផ្សេងទៀត)</td><td class="p-2 border-b border-slate-100"></td></tr>
+                                <tr><td class="p-2 border-r border-slate-100">រិទ្ធ ឌីម៉ង់</td><td class="p-2"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-sm border p-6 md:p-8">
+                <div class="flex items-center gap-4 mb-6 border-b pb-4">
+                    <div class="bg-blue-100 text-blue-700 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">២</div>
+                    <h2 class="text-2xl font-bold text-slate-800">របៀបប្រើប្រាស់កម្មវិធី</h2>
+                </div>
+
+                <div class="space-y-6 text-slate-700">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">ក. ការបញ្ចូលទិន្នន័យ និងកាលបរិច្ឆេទ</h3>
+                        <p>បញ្ចូលឯកសាររបស់អ្នកក្នុងផ្នែកទី១។ កំណត់ <strong>កាលបរិច្ឆេទចាប់ផ្តើមបង្វិល (Anchor Date)</strong> និង <strong>ខែចាប់ផ្តើម (Start Month)</strong> សម្រាប់ឯកសារ Excel របស់អ្នក។ ជ្រើសរើសចំនួនខែដែលត្រូវបង្កើត និងកំណត់ថាតើត្រូវរាប់បញ្ចូលថ្ងៃអាទិត្យដែរឬទេ។</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">ខ. កែសម្រួលអត្ថបទ</h3>
+                        <p>នៅក្នុងផ្នែកទី២ សូមកែប្រែចំណងជើង ឈ្មោះថ្នាក់ ជំនាន់ ឆ្នាំសិក្សា និងកាលបរិច្ឆេទហត្ថលេខា ឱ្យស្របតាមតម្រូវការជាក់ស្តែងរបស់អ្នក ព្រោះអត្ថបទទាំងនេះនឹងត្រូវបង្ហាញលើ Excel ដោយផ្ទាល់។</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">គ. ការកំណត់ និងចងក្រងក្រុម</h3>
+                        <p>នៅក្នុងផ្នែកទី៣ សូមវាយបញ្ចូល <strong>ចំនួនអ្នកក្នុងមួយថ្ងៃ</strong>។ ជ្រើសរើសជម្រើសសម្រាប់សិស្សដែលសល់ (បង្កើតក្រុមថ្មី ឬបញ្ចូលទៅក្រុមចុងក្រោយ)។ បន្ទាប់មកចុចប៊ូតុង <strong>Auto Group</strong> ដើម្បីរៀបចំក្រុមតាមលំដាប់ឈ្មោះ ឬ <strong>Randomize Groups</strong> ដើម្បីរៀបចំដោយចៃដន្យ។</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">ឃ. ការកែសម្រួលដោយដៃ (បើចាំបាច់)</h3>
+                        <p>បន្ទាប់ពីប្រព័ន្ធចាប់ក្រុមរួច អ្នកអាចទាញទម្លាក់ (drag and drop) ក្រុមដើម្បីផ្លាស់ប្តូរទីតាំង ឬប្រើសញ្ញាព្រួញឡើង/ចុះនៅក្នុងផ្ទាំង "បញ្ជីក្រុម"។ អ្នកក៏អាចលុប ឬបន្ថែមឈ្មោះ និងថ្ងៃឈប់សម្រាកដោយផ្ទាល់ផងដែរ។</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-1">ង. បង្កើតឯកសារ Excel</h3>
+                        <p>ពេលរៀបចំរួចរាល់ សូមចុចប៊ូតុងពណ៌បៃតងធំ <strong>បង្កើតឯកសារ Excel (Generate Excel)</strong> នៅខាងក្រោម ដើម្បីទាញយកកាលវិភាគរបស់អ្នកជាឯកសារ `.xlsx`។</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            // Elements to toggle
+            const elements = {
+                en: {
+                    btn: document.getElementById('btn-en'),
+                    content: document.getElementById('content-en'),
+                    navTitle: document.getElementById('nav-title-en'),
+                    heroTitle: document.getElementById('hero-title-en'),
+                    heroDesc: document.getElementById('hero-desc-en'),
+                    btnLaunch: document.getElementById('btn-launch-en')
+                },
+                km: {
+                    btn: document.getElementById('btn-km'),
+                    content: document.getElementById('content-km'),
+                    navTitle: document.getElementById('nav-title-km'),
+                    heroTitle: document.getElementById('hero-title-km'),
+                    heroDesc: document.getElementById('hero-desc-km'),
+                    btnLaunch: document.getElementById('btn-launch-km')
+                }
+            };
+
+            // Switch to English
+            if (lang === 'en') {
+                // Set Buttons
+                elements.en.btn.classList.replace('lang-inactive', 'lang-active');
+                elements.km.btn.classList.replace('lang-active', 'lang-inactive');
+                
+                // Show English Elements
+                elements.en.content.classList.remove('hidden');
+                elements.en.navTitle.classList.remove('hidden');
+                elements.en.heroTitle.classList.remove('hidden');
+                elements.en.heroDesc.classList.remove('hidden');
+                elements.en.btnLaunch.classList.remove('hidden');
+                
+                // Hide Khmer Elements
+                elements.km.content.classList.add('hidden');
+                elements.km.navTitle.classList.add('hidden');
+                elements.km.heroTitle.classList.add('hidden');
+                elements.km.heroDesc.classList.add('hidden');
+                elements.km.btnLaunch.classList.add('hidden');
+            } 
+            // Switch to Khmer
+            else {
+                // Set Buttons
+                elements.km.btn.classList.replace('lang-inactive', 'lang-active');
+                elements.en.btn.classList.replace('lang-active', 'lang-inactive');
+                
+                // Show Khmer Elements
+                elements.km.content.classList.remove('hidden');
+                elements.km.navTitle.classList.remove('hidden');
+                elements.km.heroTitle.classList.remove('hidden');
+                elements.km.heroDesc.classList.remove('hidden');
+                elements.km.btnLaunch.classList.remove('hidden');
+                
+                // Hide English Elements
+                elements.en.content.classList.add('hidden');
+                elements.en.navTitle.classList.add('hidden');
+                elements.en.heroTitle.classList.add('hidden');
+                elements.en.heroDesc.classList.add('hidden');
+                elements.en.btnLaunch.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
